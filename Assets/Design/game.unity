@@ -977,6 +977,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   distanceTransform: {x: 0, y: 6.44, z: -5.82}
+  maxX: 54
+  minX: -46
+  maxZ: 32
+  minZ: -64
 --- !u!1 &1421412608
 GameObject:
   m_ObjectHideFlags: 0
