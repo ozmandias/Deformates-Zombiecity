@@ -51,10 +51,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Arkham Interactive\Toony\Skies\Scripts\Levelloader.cs" />
+     <Compile Include="Assets\Arkham Interactive\Toony\Skies\Scripts\MouseLook.cs" />
+     <Compile Include="Assets\Programming\AudioManager.cs" />
+     <Compile Include="Assets\Programming\CharacterInfo.cs" />
+     <Compile Include="Assets\Programming\GameManager.cs" />
+     <Compile Include="Assets\Programming\GunInfo.cs" />
      <Compile Include="Assets\Programming\MainCamera.cs" />
+     <Compile Include="Assets\Programming\MainMenuManager.cs" />
      <Compile Include="Assets\Programming\Player.cs" />
+     <Compile Include="Assets\Programming\SpawnManager.cs" />
+     <Compile Include="Assets\Programming\SwordInfo.cs" />
+     <Compile Include="Assets\Programming\UIManager.cs" />
+     <Compile Include="Assets\Programming\Weapon.cs" />
+     <Compile Include="Assets\Programming\WeaponInfo.cs" />
+     <Compile Include="Assets\Programming\Zombie.cs" />
      <Compile Include="Assets\Programming\ZombiecityButtonHandler.cs" />
      <Compile Include="Assets\Programming\ZombiecityJoystick.cs" />
+     <Compile Include="Assets\ScreenShooter\Demo\Scripts\Rotator.cs" />
+     <Compile Include="Assets\sprite muzzle flashes\AnimatedTexture.cs" />
+     <None Include="Assets\Blood decal pack\readme.txt" />
  <Reference Include="UnityEngine.CoreModule">
  <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
  </Reference>
