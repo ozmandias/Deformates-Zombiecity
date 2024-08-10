@@ -10,13 +10,12 @@ public class Player : MonoBehaviour {
     [SerializeField] NavMeshAgent playerAgent;
     [SerializeField] float speed = 4f;
     [SerializeField] float rotateSpeed = 8f;
-    [SerializeField] float lookRotateSpeed = 16f;
+    [SerializeField] float sphereRotateSpeed = 16f;
     float rotateAngle = 0;
     [SerializeField] GameObject playerGunRaycastObject;
     Ray gunRay;
     RaycastHit gunRayHit;
     CharacterInfo playerInfo;
-    int shootCount = 0;
     [SerializeField] bool isMoving = false;
     [SerializeField] bool isShooting = false;
     [SerializeField] bool isReloading = false;
@@ -82,12 +81,11 @@ public class Player : MonoBehaviour {
             Stop_Run_Animation();
         }
         
-        if(autoAim == true && nearestZombie != null){
-            // transform.LookAt(nearestZombie.transform);
+        if(autoAim == true && isShooting == true  && nearestZombie != null){
             Vector3 rotateDirection = nearestZombie.transform.position - gameObject.transform.position;
             Vector3 rotateTowards = Vector3.RotateTowards(transform.forward, rotateDirection, rotateSpeed, 0);
             Quaternion lookRotation = Quaternion.LookRotation(rotateTowards);
-            gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, lookRotateSpeed * Time.deltaTime) /*lookRotation*/;
+            gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, sphereRotateSpeed * Time.deltaTime) /*lookRotation*/;
         } else if(autoAim == false) {
             Quaternion rotation = Quaternion.Euler(0, rotateAngle, 0);
             gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotateSpeed * Time.deltaTime) /*rotation*/;
@@ -111,12 +109,11 @@ public class Player : MonoBehaviour {
             Stop_Run_Animation();
         }
 
-        if(autoAim == true && nearestZombie != null){
-            // transform.LookAt(nearestZombie.transform);
+        if(autoAim == true && isShooting == true && nearestZombie != null){
             Vector3 rotateDirection = nearestZombie.transform.position - gameObject.transform.position;
             Vector3 rotateTowards = Vector3.RotateTowards(transform.forward, rotateDirection, rotateSpeed, 0);
             Quaternion lookRotation = Quaternion.LookRotation(rotateTowards);
-            gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, lookRotateSpeed * Time.deltaTime) /*lookRotation*/;
+            gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, sphereRotateSpeed * Time.deltaTime) /*lookRotation*/;
         } else if(autoAim == false) {
             Quaternion rotation = Quaternion.Euler(0, rotateAngle, 0);
             gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotateSpeed * Time.deltaTime) /*rotation*/;
@@ -135,15 +132,15 @@ public class Player : MonoBehaviour {
             if(playerWeapon.currentGun.currentBullets > 0 && isReloading == false) {
                 // Debug.Log("Shoot");
                 isShooting = true;
-                shootCount = shootCount + 1;
                 if(autoAimDistance > 0 && isShooting == true && autoAimDistance <= maxDistance && nearestZombie != null) {
                     autoAim = true;
+                    transform.LookAt(nearestZombie.transform);
                 }
                 Play_Shoot_Animation();
                 playerWeapon.currentGun.PlayGunParticles();
                 playerWeapon.currentGun.ReduceBullet();
                 AnimationClip shootAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "HumanShoot");
-                StartCoroutine(ResetProperty("shoot", shootAnimationClip.length));
+                StartCoroutine(ResetProperty("shoot", 0.1f /*shootAnimationClip.length*/));
                 playerUIManager.UpdateCurrentBulletsText(playerWeapon.currentGun.currentBullets);
             }
         }
@@ -177,15 +174,15 @@ public class Player : MonoBehaviour {
         if(CrossPlatformInputManager.GetButtonDown("Shoot")) {
             // Debug.Log("MobileShoot");
             isShooting = true;
-            shootCount = shootCount + 1;
             if(autoAimDistance > 0 && isShooting == true && autoAimDistance <= maxDistance && nearestZombie != null) {
                 autoAim = true;
+                transform.LookAt(nearestZombie.transform);
             }
             Play_Shoot_Animation();
             playerWeapon.currentGun.PlayGunParticles();
             playerWeapon.currentGun.ReduceBullet();
             AnimationClip shootAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "HumanShoot");
-            StartCoroutine(ResetProperty("shoot", shootAnimationClip.length));
+            StartCoroutine(ResetProperty("shoot", 0.1f /*shootAnimationClip.length*/));
             playerUIManager.UpdateCurrentBulletsText(playerWeapon.currentGun.currentBullets);
         }
         if(autoAimDistance == 0 || isShooting == false) {
@@ -201,7 +198,7 @@ public class Player : MonoBehaviour {
                 Play_Reload_Animation();
                 playerWeapon.currentGun.AddBullets();
                 AnimationClip reloadAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "Reload");
-                StartCoroutine(ResetProperty("reload", reloadAnimationClip.length));
+                StartCoroutine(ResetProperty("reload", 0.5f /*reloadAnimationClip.length*/));
             }
         }
         /*if(isReloading == true) {
@@ -227,7 +224,7 @@ public class Player : MonoBehaviour {
                 Play_Reload_Animation();
                 playerWeapon.currentGun.AddBullets();
                 AnimationClip reloadAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "Reload");
-                StartCoroutine(ResetProperty("reload", reloadAnimationClip.length));
+                StartCoroutine(ResetProperty("reload", 0.5f /*reloadAnimationClip.length*/));
             }
         }
     }
@@ -265,20 +262,18 @@ public class Player : MonoBehaviour {
     }
 
     void CheckPhysics() {
-        if(isShooting == true && shootCount == 1) {
-            gunRay = new Ray(playerGunRaycastObject.transform.position, playerGunRaycastObject.transform.forward);
-            // Debug.DrawLine(gunRay.origin, gunRay.direction, Color.white);
-            if(Physics.Raycast(gunRay, out gunRayHit, maxDistance)) {
-                // Debug.Log("hit: " + gunRayHit.collider.gameObject);
-                if(gunRayHit.collider.gameObject.CompareTag("Enemy")) {
-                    Debug.Log("enemyHit");
-                    CharacterInfo zombieCharacterInfo = gunRayHit.collider.gameObject.GetComponent<CharacterInfo>();
-                    zombieCharacterInfo.TakeDamage(playerWeapon.currentGun.gunDamage);
-                    shootCount = 0;
+        if(isShooting == true) {
+            if(autoAim == true) {
+                gunRay = new Ray(playerGunRaycastObject.transform.position, playerGunRaycastObject.transform.forward);
+                // Debug.DrawLine(gunRay.origin, gunRay.direction, Color.white);
+                if(Physics.Raycast(gunRay, out gunRayHit, maxDistance)) {
+                    // Debug.Log("hit: " + gunRayHit.collider.gameObject);
+                    if(gunRayHit.collider.gameObject.CompareTag("Enemy")) {
+                        CharacterInfo zombieCharacterInfo = gunRayHit.collider.gameObject.GetComponent<CharacterInfo>();
+                        zombieCharacterInfo.TakeDamage(playerWeapon.currentGun.gunDamage);
+                    }
                 }
             }
-        } else if(isShooting == false) {
-            shootCount = 0;
         }
     }
 
@@ -307,9 +302,38 @@ public class Player : MonoBehaviour {
         playerAnimator.SetTrigger("Reload");
     }
 
+    public void Play_Hit_Animation() {
+        playerAnimator.Play("Hit");
+    }
+
+    public void Play_Fall_Animation() {
+        playerAnimator.Play("Fall");
+    }
+
     // Collisions
     void OnCollisionEnter(Collision objectCollision) {
+        if(objectCollision.collider.CompareTag("AttackCollider")) {
+            // Debug.Log("playerHit");
+            switch(objectCollision.collider.gameObject.name) {
+                case "ZombieAttackCollider":
+                    // Debug.Log("player got attacked!");
+                    playerInfo.TakeDamage(objectCollision.collider.gameObject.transform.root.gameObject.GetComponent<Zombie>().attackDamage);
+                    break;
 
+                case "ZombieBiteCollider":
+                    // Debug.Log("player got bitten!");
+                    playerInfo.TakeDamage(objectCollision.collider.gameObject.transform.root.gameObject.GetComponent<Zombie>().biteDamage);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    // Utilities
+    public List<AnimationClip> GetAnimationClipList() {
+        return playerAnimationClipList;
     }
 
     // Coroutines

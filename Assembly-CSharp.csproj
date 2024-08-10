@@ -66,6 +66,7 @@
      <Compile Include="Assets\Programming\Weapon.cs" />
      <Compile Include="Assets\Programming\WeaponInfo.cs" />
      <Compile Include="Assets\Programming\Zombie.cs" />
+     <Compile Include="Assets\Programming\ZombieAnimationEvent.cs" />
      <Compile Include="Assets\Programming\ZombiecityButtonHandler.cs" />
      <Compile Include="Assets\Programming\ZombiecityJoystick.cs" />
      <Compile Include="Assets\ScreenShooter\Demo\Scripts\Rotator.cs" />
