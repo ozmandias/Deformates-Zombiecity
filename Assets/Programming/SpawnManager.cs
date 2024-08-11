@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour {
     [SerializeField] GameObject spawnObject;
-    [SerializeField] bool spawnEnds = false;
+    public bool spawnEnds = false;
     [SerializeField] int spawnStage = 0;
     [SerializeField] Transform[] spawnLocations;
     GameManager spawnGameManager;

@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
+    public bool gameEnds = false;
+    public bool gameEnded = false;
+    UIManager gameUIManager;
     public List<GameObject> zombieList = new List<GameObject>();
+    
+    public delegate void OnGameEnds(bool status);
+    public OnGameEnds OnGameEndsCallback;
 
     #region Singleton
         public static GameManager instance;
@@ -17,7 +23,11 @@ public class GameManager : MonoBehaviour {
     #endregion
 
     void Start() {
+        gameUIManager = UIManager.instance;
+
         HideCursor();
+
+        OnGameEndsCallback += GameEnds;
     }
 
     public void ShowCursor() {
@@ -33,5 +43,21 @@ public class GameManager : MonoBehaviour {
 
     public void UnregisterZombie(GameObject _zombie) {
         zombieList.Remove(_zombie);
+    }
+
+    public void GameEnds(bool _gameEnds) {
+        // Debug.Log("GameEnds");
+        gameEnds = _gameEnds;
+        if(gameEnds == true) {
+            gameUIManager.SetGameEndsText("Mission Completed!");
+            AudioManager.instance.Stop_Game_Music();
+            AudioManager.instance.Play_GameEnds_Music();
+        } else {
+            gameUIManager.SetGameEndsText("You Died!");
+            AudioManager.instance.Stop_Game_Music();
+            AudioManager.instance.Play_Death_Music();
+        }
+        gameEnded = true;
+        gameUIManager.ShowGameEndsPanel();
     }
 }

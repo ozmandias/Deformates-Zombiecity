@@ -96,8 +96,10 @@ public class Zombie : MonoBehaviour {
 
                 if(isMoving) {
                     Play_Walk_Animation();
+                    // zombieInfo.Play_Move_Sound();
                 } else {
                     Play_Idle_Animation();
+                    // zombieInfo.Stop_Move_Sound();
                 }
             } else if(targetDistance <= 0.8f /*1f*/ && transform.parent == null) {
                 isAttacking = true;
@@ -111,16 +113,19 @@ public class Zombie : MonoBehaviour {
 
     void Attack() {
         if(isAttacking) {
+            // zombieInfo.Stop_Move_Sound();
             zombieAgent.enabled = false;
             zombieObstacle.enabled = true;
             if(zombieAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Idle" || zombieAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Walk") {
                 int randomNumber = Random.Range(1, 4);
                 // randomNumber = 3;
                 transform.LookAt(target.transform);
-                /*if(randomNumber == 3) {
-                    // zombieAgent.destination = target.transform.position;
-                    transform.SetParent(target.transform, true);
-                }*/
+                if(randomNumber == 3) {
+                    // transform.SetParent(target.transform, true);
+                    zombieInfo.Play_Attack_Sound("bite");
+                } else {
+                    zombieInfo.Play_Attack_Sound("attack");
+                }
                 Play_Attack_Animation(randomNumber);
             }
         }

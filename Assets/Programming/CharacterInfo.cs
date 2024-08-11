@@ -11,12 +11,19 @@ public class CharacterInfo : MonoBehaviour {
     public GameObject[] groundBloodObjects;
     public Behaviour[] behavioursToDisable;
     GameManager characterGameManager;
+    SpawnManager characterSpawnManager;
+    public AudioSource moveSound;
+    public AudioSource attackSound;
+    public AudioSource hitSound;
+    public AudioSource deathSound;
+    public AudioClip[] attackAudioClips;
     public bool isHit = false;
     public bool isDead = false;
 
     void Start() {
         health = maxHealth;
         characterGameManager = GameManager.instance;
+        characterSpawnManager = SpawnManager.instance;
     }
 
     public void TakeDamage(int incomingDamage) {
@@ -27,11 +34,13 @@ public class CharacterInfo : MonoBehaviour {
             if(characterType == CharacterType.Player) {
                 Player playerCharacter = gameObject.GetComponent<Player>();
                 playerCharacter.Play_Hit_Animation();
+                Play_Hit_Sound();
                 UIManager.instance.UpdateHealthSlider(health);
                 StartCoroutine(HitCoroutine(0.1f));
             } else if(characterType == CharacterType.Enemy) {
                 Zombie zombieCharacter = gameObject.GetComponent<Zombie>();
                 zombieCharacter.Play_Hit_Animation();
+                Play_Hit_Sound();
                 AnimationClip zombieHitAnimationClip = gameObject.GetComponent<Zombie>().GetAnimationClipList().Find(zombieAnimationClip => zombieAnimationClip.name == "Hit");
                 StartCoroutine(HitCoroutine(0.3f /*zombieHitAnimationClip.length*/));
             }
@@ -48,9 +57,11 @@ public class CharacterInfo : MonoBehaviour {
         if(characterType == CharacterType.Player) {
             Player playerCharacter = gameObject.GetComponent<Player>();
             playerCharacter.Play_Fall_Animation();
+            Play_Death_Sound();
         } else if(characterType == CharacterType.Enemy) {
             Zombie zombieCharacter = gameObject.GetComponent<Zombie>();
             zombieCharacter.Play_Death_Animation();
+            Play_Death_Sound();
         }
         isDead = true;
 
@@ -72,6 +83,34 @@ public class CharacterInfo : MonoBehaviour {
         }
     }
 
+    // Audio
+    public void Play_Move_Sound() {
+        moveSound.Play();
+    }
+
+    public void Stop_Move_Sound() {
+        moveSound.Stop();
+    } 
+
+    public void Play_Attack_Sound(string attackType) {
+        if(characterType == CharacterType.Enemy) {
+            if(attackType == "attack") {
+                attackSound.clip = attackAudioClips[0];
+            } else {
+                attackSound.clip = attackAudioClips[1];
+            }
+            attackSound.Play();
+        }
+    }
+
+    public void Play_Hit_Sound() {
+        hitSound.Play();
+    }
+
+    public void Play_Death_Sound() {
+        deathSound.Play();
+    }
+
     IEnumerator HitCoroutine(float duration) {
         yield return new WaitForSeconds(duration);
         isHit = false;
@@ -80,13 +119,20 @@ public class CharacterInfo : MonoBehaviour {
     IEnumerator DeathCoroutine(float duration) {
         yield return new WaitForSeconds(duration + 1);
         if(characterType == CharacterType.Player) {
-            
+            if(characterGameManager.OnGameEndsCallback != null) {
+                characterGameManager.OnGameEndsCallback.Invoke(false);
+            }
         } else if(characterType == CharacterType.Enemy) {
             if(characterGameManager.zombieList.Any(zombie => zombie == this.gameObject)) {
                 // Debug.Log("zombie found");
                 int zombiePosition = characterGameManager.zombieList.FindIndex(zombie => zombie == this.gameObject);
                 // Debug.Log("zombiePosition: " + zombiePosition);
                 characterGameManager.zombieList.RemoveAt(zombiePosition);
+            }
+            if(characterSpawnManager.spawnEnds == true && characterGameManager.zombieList.Count == 0) {
+                if(characterGameManager.OnGameEndsCallback != null) {
+                    characterGameManager.OnGameEndsCallback.Invoke(true);
+                }
             }
             Destroy(this.gameObject);
         }

@@ -76,9 +76,11 @@ public class Player : MonoBehaviour {
             isMoving = true;
             rotateAngle = Vector3.SignedAngle(Vector3.forward, direction, Vector3.up);
             Play_Run_Animation();
+            // playerInfo.Play_Move_Sound();
         } else if(horizontal == 0 && vertical == 0) {
             isMoving = false;
             Stop_Run_Animation();
+            // playerInfo.Stop_Move_Sound();
         }
         
         if(autoAim == true && isShooting == true  && nearestZombie != null){
@@ -104,9 +106,11 @@ public class Player : MonoBehaviour {
             isMoving = true;
             rotateAngle = Vector3.SignedAngle(Vector3.forward, direction, Vector3.up);
             Play_Run_Animation();
+            // playerInfo.Play_Move_Sound();
         } else if(horizontal == 0 && vertical == 0) {
             isMoving = false;
             Stop_Run_Animation();
+            // playerInfo.Stop_Move_Sound();
         }
 
         if(autoAim == true && isShooting == true && nearestZombie != null){
@@ -138,6 +142,7 @@ public class Player : MonoBehaviour {
                 }
                 Play_Shoot_Animation();
                 playerWeapon.currentGun.PlayGunParticles();
+                playerWeapon.currentGun.Play_Shoot_Sound();
                 playerWeapon.currentGun.ReduceBullet();
                 AnimationClip shootAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "HumanShoot");
                 StartCoroutine(ResetProperty("shoot", 0.1f /*shootAnimationClip.length*/));
@@ -180,6 +185,7 @@ public class Player : MonoBehaviour {
             }
             Play_Shoot_Animation();
             playerWeapon.currentGun.PlayGunParticles();
+            playerWeapon.currentGun.Play_Shoot_Sound();
             playerWeapon.currentGun.ReduceBullet();
             AnimationClip shootAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "HumanShoot");
             StartCoroutine(ResetProperty("shoot", 0.1f /*shootAnimationClip.length*/));
@@ -196,6 +202,7 @@ public class Player : MonoBehaviour {
                 // Debug.Log("Reload");
                 isReloading = true;
                 Play_Reload_Animation();
+                playerWeapon.currentGun.Play_Reload_Sound();
                 playerWeapon.currentGun.AddBullets();
                 AnimationClip reloadAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "Reload");
                 StartCoroutine(ResetProperty("reload", 0.5f /*reloadAnimationClip.length*/));
@@ -222,6 +229,7 @@ public class Player : MonoBehaviour {
                 // Debug.Log("MobileReload");
                 isReloading = true;
                 Play_Reload_Animation();
+                playerWeapon.currentGun.Play_Reload_Sound();
                 playerWeapon.currentGun.AddBullets();
                 AnimationClip reloadAnimationClip = playerAnimationClipList.Find(playerAnimationClip => playerAnimationClip.name == "Reload");
                 StartCoroutine(ResetProperty("reload", 0.5f /*reloadAnimationClip.length*/));
@@ -370,6 +378,7 @@ public class Player : MonoBehaviour {
                     // Debug.Log("reloadReset");
                     playerUIManager.UpdateCurrentBulletsText(playerWeapon.currentGun.currentBullets);
                     isReloading = false;
+                    playerWeapon.currentGun.Stop_Reload_Sound();
                     break;
 
                 default:
